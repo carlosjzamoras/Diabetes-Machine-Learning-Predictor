@@ -46,7 +46,57 @@ max         2.000000       1.000000       1.000000       1.000000      98.000000
 ```
 ![Histogram of diabetes variables](https://github.com/user-attachments/assets/464fdf27-8c1c-46a9-b5d5-afebdac8b4d8)
 
+We can immediately tell that there are many more patients without diabetes than with diabetes. Some of the predictor variables are sort of normally distributed while other have uneven date or are skewed. We continue forward and conduct a correlation matrix of the variables. This will provide us some insight into what variables are key predictors for diabetes and potentially include them in our models.
 
+### Correlation Matrix 
+A correlation matrix tells use the strength of the relationship between two variables. In our case, we are looking to see what variables have a strong correlation with Diabetes. While this is not the only metric we use in determining what predictor variables go into our model, it is a good starting point. 
+
+```python
+#Calculate Pearson Correlation Coeffcient 
+corr_matrix = health_data.corr()
+
+#plot the correlation coefficient
+plt.figure(figsize=(10,8))
+plt.matshow(corr_matrix,fignum = 1, cmap="seismic",vmin=-1,vmax=1)
+
+#add correlation coefficient numnber into cell 
+for i in range(len(corr_matrix.columns)):
+    for j in range(len(corr_matrix.columns)):
+        plt.text(j,i, f"{corr_matrix.iloc[i,j]:.2f}",
+                 ha='center',va='center',color='black',fontsize=8)
+                   
+#Set tick positions and lables 
+tick_marks = np.arange(0,len(health_data.columns),1)
+x_lables= health_data.columns
+# x_lables = ['\n'.join(wrap(l,10)) for l in x_lables]
+plt.xticks(tick_marks,x_lables,rotation=90,ha='center')
+plt.yticks(tick_marks,health_data.columns)
+
+#add color bar gradient to represent Correlation Coefficient 
+color_bar = plt.colorbar()
+color_bar.set_label('Correlation Coefficient')
+
+#Add the title 
+plt.title("Correlation Matrix")
+plt.subplots_adjust(left=.5,top=.8,bottom=.3,right=.9)
+plt.show()
+```
+>output is shown below
+![correlation matrix](https://github.com/user-attachments/assets/7b45a521-018e-4613-b5e7-97c7bbce9143)
+
+Based on this matrix, we can see that the variables with the strongest correlectins are:
+ -High Blood Pressure (HighBP)
+ -High Cholesterol (HighChol)
+ -BMI
+ -Heart Diesease or Heart Attack (HeartDiseaseorAttack)
+ -General Health
+ -Physcial Health
+ -Difficulty Walking (DiffWalk)
+ -Age
+ -Income
+However some of these variables are correlated amongst themselves. In order to address overfitting, we may want to remove one or two variables that are highly correlated amongst themselves. 
+### Addressing Multicollinearity 
+Multicollinearity occurs when the predictor (independent) variables in our regressive model are correlated amongst themselves. As stated above we can simply drop variable that is highly correlated with another predictor variable, or we can take a more rigerous approach--we can conduct a lasso regression
 ## Generalized Linear Model (Logit)
 
 ## Random Forest
