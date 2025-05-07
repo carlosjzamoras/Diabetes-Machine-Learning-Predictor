@@ -97,10 +97,84 @@ Based on this matrix, we can see that the variables with the strongest correlect
 However some of these variables are correlated amongst themselves. In order to address overfitting, we may want to remove one or two variables that are highly correlated amongst themselves. 
 ### Addressing Multicollinearity 
 Multicollinearity occurs when the predictor (independent) variables in our regressive model are correlated amongst themselves. As stated above we can simply drop variable that is highly correlated with another predictor variable, or we can take a more rigerous approach--we can conduct a lasso regression
+#### Lasso Regression
+Lasso regression with binary outcomes is a form of logistic regression tha includes L1 regulatization, or rather a penalty factor. The penalty factors tends to drive the coefficients to zero, effectively removing those variables from our model. We use lasso regression as a method of feature selection. One of the key differences here is that instead of an alpha with use $C$, the inverse of the regularization strength, the smaller the values the stronger the regularization. We will use this in conjunction with our coefficient matrix to create two logit models with different and compare. 
+```python
+#Create a lasso regression 
+#The first step in our lass regression is transforming our numerical 
+#Combine PreDiabetes and Diabetes into one outcome
+
+health_data['Diabetes_012'] = health_data['Diabetes_012'].replace({2:1})
+
+# caterogical entries for Age,Education,Income, and General health 
+
+health_data['Age'] = health_data['Age'].replace({1:'1-14',2:'18-24',3:"30-34",4:'35-39',5:'40-44',6:'45-49',7:'50-54',
+                                                 8:'55-59',9:'60-64',10:'65-69',11:'70-74',12:'75-79',13:'80+'})
+health_data['Education']= health_data['Education'].replace({1:'NeverAttended',2:'Elementary',3:'SomeHighSchool',4:'GED',5:"SomeCollege",6:"College"})
+health_data['Income'] = health_data['Income'].replace({1:'10,0000',2:'15,0000',3:'20,000',4:'25,000',5:'35,000',6:'50,000',7:'75,000',8:'75,000+'})
+health_data['GenHlth'] = health_data['GenHlth'].replace({1:'Excellent',2:'VeryGood',3:'Good',4:'Fair',5:'Poor'})
+
+#Encode the catergorical features as "one-hot" numerica feature aka dummy variables 
+dummies = pd.get_dummies(health_data[['Age','Education','Income','GenHlth']],dtype=int)
+#dummies.info()
+#print(dummies.head())
+
+#Create Y-lable aka outcome variable
+y = health_data['Diabetes_012']
+
+# #Drop the outcome variable and our catergorical variables 
+X_numerical = health_data.drop(['Diabetes_012','Age','Education','Income','GenHlth'],axis=1).astype('float64')
+
+#Create a list of all numerical features
+# list_numerical =X_numerical.columns
+#print(list_numerical)
+#Create all the predictor variables/features 
+X = pd.concat([X_numerical,dummies],axis=1)
+
+#Split data into trainting and test, 70/30 split
+
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.03,random_state=10)
+
+# Standardization of  our data. We want all numerical features to be centered around zero
+# Ultimately we get a z score
+# The only factors that are numerical aka non-binary are BMI,Mental Health, and Physical Health 
+
+scaler = StandardScaler().fit(X_train[['BMI','MentHlth','PhysHlth']])
+X_train[['BMI','MentHlth','PhysHlth']] =scaler.transform(X_train[['BMI','MentHlth','PhysHlth']])
+X_test[['BMI','MentHlth','PhysHlth']] = scaler.transform(X_test[['BMI','MentHlth','PhysHlth']])
+
+#Implement Lasso Regression 
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression(penalty='l1',solver='liblinear',C=0.001)
+model.fit(X_train,y_train)
+print("Coefficients:", model.coef_)
+```
+>output is shown below
+```
+[[ 0.74583782  0.51861609  0.          0.31591258  0.          0.
+   0.25887611 -0.11442267  0.         -0.06095793  0.          0.
+   0.          0.          0.07223784  0.16713334  0.          0.
+   0.          0.          0.          0.          0.          0.
+   0.          0.          0.04017044  0.03958824  0.          0.
+  -0.07425358  0.          0.          0.          0.          0.
+   0.          0.          0.          0.          0.          0.
+   0.         -0.238827   -0.87515712  0.13996607  0.          0.
+  -0.59171136]]
+```
+From here we can tell when a higher regulization is applied that the key factors are _HighBP_, _HighChol_, _BMI_, _General Health_, _Heart Disease or Attack_, and _Physical Activity_. 
+
+We visaulize the convergence to zero of our coeffiecients as $C$ gets smaller. 
+
+```python
+```
+>output is shown below
+
 ## Generalized Linear Model (Logit)
 
 ## Random Forest
 
+```python
+```
 ## K-Nearest Nieghbor
 
 ## XGBoost 
