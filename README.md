@@ -166,8 +166,29 @@ From here we can tell when a higher regulization is applied that the key factors
 We visaulize the convergence to zero of our coeffiecients as $C$ gets smaller. 
 
 ```python
+#Examin different C's 
+Cs= np.logspace(2,-2,50)
+coefs=[]
+for c in Cs:
+    model = LogisticRegression(penalty='l1',solver='liblinear',C=c,max_iter=1000)
+    model.fit(X_train,y_train)
+    coefs.append(model.coef_[0])
+#plot
+plt.figure(figsize=(10,6))
+for i in range(coefs.shape[1]):
+    plt.plot(np.log10(Cs),coefs[:,i],label=f'Feature {i+1}')
+
+plt.xlabel('log10(C) (inverse regularization strength)')
+plt.ylabel('Coefficient value')
+plt.title('Lasso Coefficient Paths (Binary Outcome)')
+plt.axhline(0,color='gray',linestyle='--')
+plt.grid(True)
+plt.show()
 ```
 >output is shown below
+
+##### Choosing the best C (inverse of reguluzation strength)
+We will perform
 
 ## Generalized Linear Model (Logit)
 
