@@ -94,6 +94,7 @@ Based on this matrix, we can see that the variables with the strongest correlect
  - Difficulty Walking (DiffWalk)
  - Age
  - Income
+ - 
 However some of these variables are correlated amongst themselves. In order to address overfitting, we may want to remove one or two variables that are highly correlated amongst themselves. 
 ### Addressing Multicollinearity 
 Multicollinearity occurs when the predictor (independent) variables in our regressive model are correlated amongst themselves. As stated above we can simply drop variable that is highly correlated with another predictor variable, or we can take a more rigerous approach--we can conduct a lasso regression
