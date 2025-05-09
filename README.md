@@ -84,16 +84,16 @@ plt.show()
 >output is shown below
 ![correlation matrix](https://github.com/user-attachments/assets/7b45a521-018e-4613-b5e7-97c7bbce9143)
 
-Based on this matrix, we can see that the variables with the strongest correlectins are:
- -High Blood Pressure (HighBP)
- -High Cholesterol (HighChol)
- -BMI
- -Heart Diesease or Heart Attack (HeartDiseaseorAttack)
- -General Health
- -Physcial Health
- -Difficulty Walking (DiffWalk)
- -Age
- -Income
+Based on this matrix, we can see that the variables with the strongest correlections are:  
+ - High Blood Pressure (HighBP)
+ - High Cholesterol (HighChol)
+ - BMI
+ - Heart Diesease or Heart Attack (HeartDiseaseorAttack)
+ - General Health
+ - Physcial Health
+ - Difficulty Walking (DiffWalk)
+ - Age
+ - Income
 However some of these variables are correlated amongst themselves. In order to address overfitting, we may want to remove one or two variables that are highly correlated amongst themselves. 
 ### Addressing Multicollinearity 
 Multicollinearity occurs when the predictor (independent) variables in our regressive model are correlated amongst themselves. As stated above we can simply drop variable that is highly correlated with another predictor variable, or we can take a more rigerous approach--we can conduct a lasso regression
