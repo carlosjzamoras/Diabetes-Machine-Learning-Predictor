@@ -163,39 +163,45 @@ print("Coefficients:", model.coef_)
 ```
 From here we can tell when a higher regulization is applied that the key factors are _HighBP_, _HighChol_, _BMI_, _General Health_, _Heart Disease or Attack_, and _Physical Activity_. 
 
-We visaulize the convergence to zero of our coeffiecients as $C$ gets smaller. 
-
+##### Choosing the best C (inverse of reguluzation strength)
+We will perform a 5 fold cross validation technique in order to find out the best C value for out logistic lasso regression. 
 ```python
-#Examin different C's 
-Cs= np.logspace(2,-2,50)
-coefs=[]
-for c in Cs:
-    model = LogisticRegression(penalty='l1',solver='liblinear',C=c,max_iter=1000)
-    model.fit(X_train,y_train)
-    coefs.append(model.coef_[0])
-#plot
-plt.figure(figsize=(10,6))
-for i in range(coefs.shape[1]):
-    plt.plot(np.log10(Cs),coefs[:,i],label=f'Feature {i+1}')
-
-plt.xlabel('log10(C) (inverse regularization strength)')
-plt.ylabel('Coefficient value')
-plt.title('Lasso Coefficient Paths (Binary Outcome)')
-plt.axhline(0,color='gray',linestyle='--')
-plt.grid(True)
-plt.show()
+# #Choose the best C value
+#Logistic Lasso with % fold cross-validation
+clf = LogisticRegressionCV(
+    Cs=10,
+    cv =5,
+    penalty='l1',
+    solver='liblinear',
+    scoring='f1',
+    max_iter=1000,
+    refit=True
+)
+clf.fit(X_test,y_test)
+print("Best C:", clf.C_[0])
 ```
 >output is shown below
+```
+Coefficients: [[ 0.67478267  0.55338964  1.15706162  0.38766644 -0.04102682  0.13277449
+   0.23165537 -0.05224019 -0.02281784 -0.03454998 -0.67805137  0.03992066
+   0.07212196 -0.01030522 -0.02885197  0.12546634  0.24695673 -2.38799138
+  -2.13121892 -1.93928154 -1.4802937  -1.29990454 -1.07270692 -0.8712403
+  -0.78795748 -0.56905507 -0.40881534 -0.33862375 -0.41643371 -0.58363294
+  -0.83219381 -0.54971581 -0.77859807 -0.64649551 -0.73810157 -0.68652758
+  -0.81720298 -0.852915   -0.89526448 -0.92305391 -0.98792574 -1.06405307
+  -1.09870292 -1.25491822 -1.84298443 -0.0842998  -0.51336566  0.06035295
+  -1.17006263]]
+Best C: 21.54434690031882
+```
+From these results the best inverse penalizing factor to use is 21.5 Next we will draw a comparison between the lasso logistic regression. However, the best penalizing factor did not make all the factors zero.  While Lasso regression serves as a powerful tool, it does not always work as intended. It is unable to differentiate betweena _true_ casual variable and a variable that has little relationship with our outcome variable. In general we would like to reduce the model complexity. 
 
-##### Choosing the best C (inverse of reguluzation strength)
-We will perform
+##### Logistic Lasso Regression v. Logistic Regression
+We will make a direct comparision between the logistic lasso regression where the penalizing factor has been optimized and logistic regression where the predictor variables have been naively selected based on the correlation matrix. 
 
 ## Generalized Linear Model (Logit)
 
 ## Random Forest
 
-```python
-```
 ## K-Nearest Nieghbor
 
 ## XGBoost 
