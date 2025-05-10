@@ -94,7 +94,7 @@ Based on this matrix, we can see that the variables with the strongest correlect
  - Difficulty Walking (DiffWalk)
  - Age
  - Income
- - 
+
 However some of these variables are correlated amongst themselves. In order to address overfitting, we may want to remove one or two variables that are highly correlated amongst themselves. 
 ### Addressing Multicollinearity 
 Multicollinearity occurs when the predictor (independent) variables in our regressive model are correlated amongst themselves. As stated above we can simply drop variable that is highly correlated with another predictor variable, or we can take a more rigerous approach--we can conduct a lasso regression
@@ -194,13 +194,83 @@ Coefficients: [[ 0.67478267  0.55338964  1.15706162  0.38766644 -0.04102682  0.1
   -1.17006263]]
 Best C: 21.54434690031882
 ```
-From these results the best inverse penalizing factor to use is 21.5 Next we will draw a comparison between the lasso logistic regression. However, the best penalizing factor did not make all the factors zero.  While Lasso regression serves as a powerful tool, it does not always work as intended. It is unable to differentiate betweena _true_ casual variable and a variable that has little relationship with our outcome variable. In general we would like to reduce the model complexity. 
-
-##### Logistic Lasso Regression v. Logistic Regression
-We will make a direct comparision between the logistic lasso regression where the penalizing factor has been optimized and logistic regression where the predictor variables have been naively selected based on the correlation matrix. 
+From these results the best inverse penalizing factor to use is 21.5 Next we will draw a comparison between the lasso logistic regression and logistic regression. However, the best penalizing factor did not make all the factors zero.  While Lasso regression serves as a powerful tool, it does not always work as intended. It is unable to differentiate betweena _true_ casual variable and a variable that has little relationship with our outcome variable. In general we would like to reduce the model complexity. 
 
 ## Generalized Linear Model (Logit)
+### Logistic Lasso Regression v. Logistic Regression
+We will make a direct comparision between the logistic lasso regression where the penalizing factor has been optimized and logistic regression where the predictor variables have been naively selected based on the correlation matrix (listed aboved). 
+```python
 
+#Now that Lasso regression is finished 
+#Continue comparing the naive logistic  regression (GLM w/ binomial) with the optimized 
+
+
+# health_training, health_test = train_test_split(health_data,test_size=.03,random_state=10)
+health_training, health_test = train_test_split(health_data_clean,test_size=.03,random_state=10)
+health_glm = smf.glm('Diabetes_012 ~ HighBP + HighChol + BMI + HeartDiseaseorAttack + MentHlth + PhysHlth + GenHlth',
+                      data=health_training, family = sm.families.Binomial()).fit()
+log_prob_y=health_glm.predict(health_test)
+log_pred_y=(log_prob_y >=0.5).astype(int)
+```
+Now we compare the results from the Lasso model and the Logistic regression model. 
+```python
+#Comparing Models 
+print("Accuracy Score Lasso: ",accuracy_score(y_test,lasso_y_pred))
+print("Acurracy Score Logistic: ",accuracy_score(health_test['Diabetes_012'],log_pred_y))
+print("Precision Score Lasso: ",precision_score(y_test,lasso_y_pred))
+print("Precision Score Logistic: ",precision_score(health_test['Diabetes_012'],log_pred_y))
+print("Recall Score Lasso: ",recall_score(y_test,lasso_y_pred))
+print("Recall Score Logistic: ",recall_score(health_test['Diabetes_012'],log_pred_y))
+print("F1_score Lasso: ",f1_score(y_test,lasso_y_pred))
+print("F1 Score Logistic: ",f1_score(health_test['Diabetes_012'],log_pred_y) )
+```
+>output is shown below
+```
+Accuracy Score Lasso:  0.8477204046774406
+Acurracy Score Logistic:  0.8462751281040599
+Precision Score Lasso:  0.5803814713896458
+Precision Score Logistic:  0.573170731707317
+Recall Score Lasso:  0.1748768472906404
+Recall Score Logistic:  0.15435139573070608
+F1_score Lasso:  0.26876971608832806
+F1 Score Logistic:  0.24320827943078913
+```
+### ROC and AUC
+The ROC is a popular tool used to evaluated bininary classifications.  We are plotting the true positive rate against the false positive rate at different threshholds. 
+```python
+#Compute ROC for both models
+fpr1, tpr1, _ = roc_curve(y_test,lasso_y_pred)
+fpr2, tpr2, _ = roc_curve(health_test['Diabetes_012'],log_pred_y)
+#Compute the AUC for both models
+auc_model1= roc_auc_score(y_test,lasso_y_pred)
+auc_model2= roc_auc_score(health_test['Diabetes_012'],log_pred_y)
+#Plot the figure
+fig, ax = plt.subplots(1,2, figsize=(14,6))
+
+# Plot ROC curve for Model 1
+ax[0].plot(fpr1, tpr1, color='blue', label=f'Model 1 (AUC = {auc_model1:.2f})')
+ax[0].plot([0, 1], [0, 1], linestyle='--', color='gray')  # Random chance line
+ax[0].set_xlabel('False Positive Rate')
+ax[0].set_ylabel('True Positive Rate')
+ax[0].set_title('Model 1: ROC Curve')
+ax[0].legend()
+
+# Plot ROC curve for Model 2
+ax[1].plot(fpr2, tpr2, color='red', label=f'Model 2 (AUC = {auc_model2:.2f})')
+ax[1].plot([0, 1], [0, 1], linestyle='--', color='gray')  # Random chance line
+ax[1].set_xlabel('False Positive Rate')
+ax[1].set_ylabel('True Positive Rate')
+ax[1].set_title('Model 2: ROC Curve')
+ax[1].legend()
+
+# Show the plot
+plt.tight_layout()
+plt.show()
+```
+>output is shown below
+![ROC curve](https://github.com/user-attachments/assets/86784a2c-44f5-45c4-9ca9-fb2b737d1561)
+
+#### Author's comments 
 ## Random Forest
 
 ## K-Nearest Nieghbor
