@@ -268,12 +268,46 @@ plt.tight_layout()
 plt.show()
 ```
 >output is shown below
+
+
 ![ROC curve](https://github.com/user-attachments/assets/86784a2c-44f5-45c4-9ca9-fb2b737d1561)
 
 #### Author's comments 
-## Random Forest
+So our logistic model while doing well in the accuracy score , performs poorly in the precision score. We look into the AUC score and while the logistic lasso regression performs marginally  better , both models are not ideal. These models barely perform better than a random guess. An important takeaway are that some predictor variables are easily accessible without any intrusive medical testing. Items like BMI and Blood Pressure are able to act as preliminary indictors in our simple models. 
 
-## K-Nearest Nieghbor
+A key distinction is that our naive logistic regression does not inherently remove multicollinearity. The comparison is useful however is only including factors that may not be as personal. 
+## Random Forest
+Ww move forward to a more complex model called a random forest. A random forest is an extension of a decision tree. In practice 
+```python
+#Create a random forest with all factors
+X = health_data.drop('Diabetes_012',axis=1)
+y = health_data['Diabetes_012']
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size =.03)
+
+#Create an instance of the RandomForest 
+rf = RandomForestClassifier(class_weight='balanced')
+rf.fit(X_train,y_train)
+
+y_pred = rf.predict(X_test)
+accuracy = accuracy_score(y_test,y_pred)
+precision = precision_score(y_test,y_pred)
+f1Score = f1_score(y_test,y_pred)
+AUC_score = roc_auc_score(y_test,y_pred)
+print("Accuracy:", accuracy)
+print("Precision:",precision)
+print('F1 Score: ', f1Score)
+print('AUC Score: ',AUC_score )
+```
+>outcome is shown below
+
+```
+Accuracy: 0.8406254105899357
+Precision: 0.4980694980694981
+F1 Score:  0.2984384037015616
+AUC Score:  0.586211034269199
+```
+While the accuracy score is slightly better the AUC score is slightly better, the model still performs poorly in distingushing between true positives and false positives. 
+## K-Nearest Neighbor
 
 ## XGBoost 
 
