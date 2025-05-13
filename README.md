@@ -308,9 +308,48 @@ AUC Score:  0.586211034269199
 ```
 While the accuracy score is slightly better the AUC score is slightly better, the model still performs poorly in distingushing between true positives and false positives. 
 ## K-Nearest Neighbor
-
+Next we perform a K-nearest neighbor algorithm to classify a patient as diabetic or not. 
+```python
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train,y_train)
+y_pred = knn.predict(X_test)
+accuracy = accuracy_score(y_test,y_pred)
+precision = precision_score(y_test,y_pred)
+recall = recall_score(y_test,y_pred)
+AUC_score = roc_auc_score(y_test,y_pred)
+print('Accuracy:', accuracy)
+print('Precision:', precision)
+print('Recall:', recall)
+print('AUC_Score:', AUC_score)
+```
 ## XGBoost 
+We perform a gradient boosting algorithm and compare its results (return to a later date for hyperparemeter tuning) 
+```python
+#
+#Create the regression matrices 
+model = XGBClassifier(object = 'binary:logistic', random_state = 42, learning_state=32)
+model.fit(X_train,y_train)
+#Xgb will automatical assigned 1 to number greater the 0.5 
+prediction_train = model.predict(X_train)
+prediction_test = model.predict(X_test)
+
+#Extracting actual probabilities
+prob_prediction_train = model.predict_proba(X_train)
+prob_prediction_test = model.predict_proba(X_test)
+
+#Evaluating Model Performance
+#Calulate the accuracy
+accuracy = model.score(X_test,y_test)
+print("Accuracy: %f%%" % (accuracy * 100))
+
+#Calculate log-loss
+print(log_loss(y_test,prob_prediction_test))
+
+plot_tree(model)
+plt.show()
+
+```
 
 ## Verdict 
+XGBoost performed the best due to the underlying nature of the algorithm being performed. Unlike logistic regression which assumes a linear relationship between the outcome variable and the predictor variables, XGBoost is an ensemble of decision trees that can properly model nonlinear interactions between the predictor and outcome variables. KNN performed decently well but also struggles with sparse data and has no built in feature selection. While our non gradient boosting models performed decently well, it is likely that there is a nonlinear relationship between some of the predictor variables and the binary classification of having diabetes or not. 
 
-## Concluding Remarks
